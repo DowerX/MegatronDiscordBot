@@ -15,6 +15,12 @@ from bs4 import BeautifulSoup
 client = Bot(command_prefix=BOT_PREFIX)
 client.activity = Game(name=ACTIVITY)
 
+def rolecheck(usr, rqrl):
+    rls = []
+    for rl in usr.roles:
+        rls.append(rl.name)
+    return rqrl in rls
+
 @client.event
 async def on_ready():
     print("Logged in as " + client.user.name)
@@ -75,6 +81,9 @@ async def echo(ctx, msg):
 
 @client.command(aliases=["join", "j"])
 async def join_voice(ctx):
+    if not rolecheck(ctx.author, "DJ"):
+        return
+
     print(f"{ctx.author.name} requested me to join his voice channel!")
     for vc in client.voice_clients:
         vc.disconnect()
@@ -82,12 +91,18 @@ async def join_voice(ctx):
 
 @client.command(aliases=["leave", "dc"])
 async def leave_voice(ctx):
+    if not rolecheck(ctx.author, "DJ"):
+        return
+
     print(f"{ctx.author.name} requested me to leave the current voice channel!")
     for vc in client.voice_clients:
         await vc.disconnect()
 
 @client.command(aliases=["p", "yt", "youtube"])
 async def play(ctx, songname):
+    if not rolecheck(ctx.author, "DJ"):
+        return
+
     print(f"{ctx.author.name} requested me to play {songname} in his current voice channel!")
     for fn in listdir("./"):
         if fn.endswith(".mp3"):
@@ -114,6 +129,9 @@ async def play(ctx, songname):
 
 @client.command(aliases=["pp", "resume"])
 async def pause(ctx):
+    if not rolecheck(ctx.author, "DJ"):
+        return
+
     print(f"{ctx.author.name} requested me to pause/resume the music!")
     try:
         for vc in client.voice_clients:
@@ -126,6 +144,9 @@ async def pause(ctx):
 
 @client.command(aliases=["s"])
 async def stop(ctx):
+    if not rolecheck(ctx.author, "DJ"):
+        return
+
     print(f"{ctx.author.name} requested me to stop the music!")
     for vc in client.voice_clients:
         vc.stop()
