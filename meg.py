@@ -3,7 +3,7 @@ import discord
 from discord import Game
 from discord.ext.commands import Bot
 from settings import *
-from pollsaddon import *
+from pollmanager import Poll
 from random import randrange
 from requests import get
 from re import compile, sub
@@ -19,35 +19,43 @@ logging.basicConfig(filename="bot_info.log", filemode="w",  format='%(asctime)s 
 client = Bot(command_prefix=BOT_PREFIX)
 client.activity = Game(name=ACTIVITY)
 
+polls = []
+
 def rolecheck(usr, rqrl):
     rls = []
     for rl in usr.roles:
         rls.append(rl.name)
     return rqrl in rls
 
-@client.command(aliases=["vote"])
+@client.command(aliases=["vote", "polls", "votes", "v"])
 async def poll(ctx, cmd, arga=None, argb=None):
     try:
-        if cmd == "addpoll":
-            addpoll(arga)
-        elif cmd == "addtopoll":
-            addtopoll(int(arga), argb)
+        if cmd == "add":
+            if argb == None:
+                polls.append(Poll(text=arga))
+            else:
+                polls[int(arga)].addposs(argb)
         elif cmd == "vote":
-            vote(int(arga), ctx.author.id, int(argb))
-        elif cmd == "removepoll":
-            removepoll(int(arga))
-        elif cmd == "removefrompoll":
-            removefrompoll(int(arga), int(argb))
-        elif cmd == "getpolls":
-            await ctx.channel.send("Polls:\n" + displaypolls())
-        elif cmd == "getpoll":
-            await ctx.channel.send("Poll:\n" + displaypoll(int(arga)))
+            if argb == None:
+                polls[int(arga)].removevote(ctx.author.id)
+            else:
+                polls[int(arga)].vote(ctx.author.id, int(argb))
+        elif cmd == "remove":
+            if argb == None:
+                polls.pop(int(arga))
+            else:
+                polls[int(arga)].removeposs(int(argb))
+        elif cmd == "polls":
+            text = ""
+            for x in range(len(polls)):
+                text += f"{x} : {polls[x].text}\n"
+            await ctx.channel.send("Polls:\n" + text)
+        elif cmd == "poll":
+            await ctx.channel.send("Poll:\n" + polls[int(arga)].displayposs())
         elif cmd == "results":
-            await ctx.channel.send("Results:\n" + getvotes(int(arga)))
-        elif cmd == "demo":
-            demo()
+            await ctx.channel.send("Results:\n" + polls[int(arga)].displayansw())
     except:
-        logging.error(f"polls failed thanks to {ctx.author}")
+        logging.error(f"polls failed thanks to {ctx.author.name}")
 
 
 @client.event
