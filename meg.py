@@ -3,6 +3,7 @@ import discord
 from discord import Game
 from discord.ext.commands import Bot
 from settings import *
+from pollsaddon import *
 from random import randrange
 from requests import get
 from re import compile, sub
@@ -23,6 +24,31 @@ def rolecheck(usr, rqrl):
     for rl in usr.roles:
         rls.append(rl.name)
     return rqrl in rls
+
+@client.command(aliases=["vote"])
+async def poll(ctx, cmd, arga=None, argb=None):
+    try:
+        if cmd == "addpoll":
+            addpoll(arga)
+        elif cmd == "addtopoll":
+            addtopoll(int(arga), argb)
+        elif cmd == "vote":
+            vote(int(arga), ctx.author.id, int(argb))
+        elif cmd == "removepoll":
+            removepoll(int(arga))
+        elif cmd == "removefrompoll":
+            removefrompoll(int(arga), int(argb))
+        elif cmd == "getpolls":
+            await ctx.channel.send("Polls:\n" + displaypolls())
+        elif cmd == "getpoll":
+            await ctx.channel.send("Poll:\n" + displaypoll(int(arga)))
+        elif cmd == "results":
+            await ctx.channel.send("Results:\n" + getvotes(int(arga)))
+        elif cmd == "demo":
+            demo()
+    except:
+        logging.error(f"polls failed thanks to {ctx.author}")
+
 
 @client.event
 async def on_ready():
