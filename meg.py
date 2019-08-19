@@ -188,4 +188,15 @@ async def stop(ctx):
     for vc in client.voice_clients:
         vc.stop()
 
+@client.event
+async def on_message(msg):
+    #filtering
+    for x in BLACKLIST:
+        if x.lower() in msg.content.lower():
+            logging.warning(f"{msg.author.name} has violated the law! He must pay with his blood!")
+            await msg.delete()
+            await client.process_commands(msg)
+            return
+    await client.process_commands(msg)
+
 client.run(TOKEN)
