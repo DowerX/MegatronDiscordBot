@@ -197,6 +197,11 @@ async def on_message(msg):
             await msg.delete()
             await client.process_commands(msg)
             return
+
+    #mentioned?
+    if client.user.mentioned_in(msg):
+        await msg.channel.send(f"What's up my dude {msg.author.nick}?")
+
     await client.process_commands(msg)
 
 client.run(TOKEN)
